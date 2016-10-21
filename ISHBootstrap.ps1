@@ -1,29 +1,113 @@
-﻿#Requires -RunAsAdministrator
+﻿#1Requires -RunAsAdministrator
 #Requires -Version 5
 
 <#
 .Synopsis
-   Downloads ISHBootstrap from github and executes the sequence from the Examples
+    Downloads ISHBootstrap from github and executes the sequence from the Examples
 .DESCRIPTION
-   Downloads ISHBootstrap from github and executes the sequence from the Examples
+    Downloads ISHBootstrap from github and executes the sequence from the Examples
+.PARAMETER Branch
+    The branch to download from ISHBootstrap repository
+.PARAMETER JSONPath
+    The path for a JSON to drive the automation. Can be http uri or file path
+.PARAMETER NoCredential
+    Script will not do anything for credentials. 
+.PARAMETER PromptCredential
+    Script will prompt for credentials. 
+.PARAMETER FTPCredential
+    Credential for FTP. 
+.PARAMETER OSUserCredential
+    Credential for OSUSer. 
 .EXAMPLE
-   ISHBootstrap.ps1
+    $ftpCredential=Get-Credential -Message "FTP"
+    $osUserCredential=Get-Credential -Message "OSUser"
+    ISHBootstrap.ps1 -JSONPath $JSONPath -FTPCredential $ftpCredential -OSUserCredential $osUserCredential
 .EXAMPLE
-   ISHBootstrap.ps1 -Branch develop
+    ISHBootstrap.ps1 -Branch develop -JSONPath $JSONPath -PromptCredential
 .EXAMPLE
-   ISHBootstrap.ps1 -Tag "v0.3"
+    ISHBootstrap.ps1 -Tag "v0.3" -JSONPath $JSONPath -NoCredential
 .Link
     https://github.com/Sarafian/ISHBootstrap
 #>
 param(
-    [Parameter(Mandatory=$true,ParameterSetName="Tag")]
-    [string]$Tag,
-    [Parameter(Mandatory=$false,ParameterSetName="Branch")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch prompt credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch with credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch without credential")]
     [string]$Branch="master",
-    [Parameter(Mandatory=$false,ParameterSetName="Tag")]
-    [Parameter(Mandatory=$false,ParameterSetName="Branch")]
-    [switch]$NoCredentialPrompt=$false
+    [Parameter(Mandatory=$true,ParameterSetName="Tag prompt credential")]
+    [Parameter(Mandatory=$true,ParameterSetName="Tag with credential")]
+    [Parameter(Mandatory=$true,ParameterSetName="Tag without credential")]
+    [string]$Tag,
+    [Parameter(Mandatory=$false,ParameterSetName="Tag prompt credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Tag with credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Tag without credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch prompt credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch with credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch without credential")]
+    [ValidateScript({
+        switch ($_)
+        {
+            {$_ -like 'http*'} {
+                try
+                {
+                    $request = Invoke-WebRequest -Uri $_ -MaximumRedirection 0
+                }
+                catch
+                {
+                    Throw [System.Management.Automation.ItemNotFoundException] "${_}"
+                }
+                $true
+            }
+            {$_ -like 'ftp'} {
+                Throw [System.Management.Automation.ItemNotFoundException] "${_} ftp is not supported."
+            }
+            Default {
+                if(-not (Test-Path $_ -PathType Leaf))
+                {
+                    Throw [System.Management.Automation.ItemNotFoundException] "${_} is not valid."
+                }
+                $true
+            }
+        }
+    })]
+    [string]$JSONPath="ISHBootstrap.json",
+    [Parameter(Mandatory=$false,ParameterSetName="Tag without credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch without credential")]
+    [switch]$NoCredential=$false,
+    [Parameter(Mandatory=$false,ParameterSetName="Tag prompt credential")]
+    [Parameter(Mandatory=$false,ParameterSetName="Branch prompt credential")]
+    [switch]$PromptCredential=$false,
+    [Parameter(Mandatory=$true,ParameterSetName="Tag with credential")]
+    [Parameter(Mandatory=$true,ParameterSetName="Branch with credential")]
+    [pscredential]$FTPCredential,
+    [Parameter(Mandatory=$true,ParameterSetName="Tag with credential")]
+    [Parameter(Mandatory=$true,ParameterSetName="Branch with credential")]
+    [pscredential]$OSUSerCredential
 )
+
+#region credential
+switch ($PSCmdlet.ParameterSetName)
+{
+    {$_ -like '*prompt credential'} {
+        $credentialActivity="Acquiring credentials"
+        Write-Progress -Activity $credentialActivity -Status "Ask for FTP creential"
+        $FTPCredential=Get-Credential -Message "Credential for FTP"
+        Write-Progress -Activity $credentialActivity -Status "Ask for OSUser credential"
+        $OSUSerCredential=Get-Credential -Message "Credential for OSUser"
+        Set-Variable "ISHBootstrap.FTP" -Value $FTPCredential -Scope Global -Force
+        Set-Variable "ISHBootstrap.OSUser" -Value $OSUSerCredential -Scope Global -Force
+        break
+    }
+    {$_ -like '*with credential'} {
+        Set-Variable "ISHBootstrap.FTP" -Value $FTPCredential -Scope Global -Force
+        Set-Variable "ISHBootstrap.OSUser" -Value $OSUSerCredential -Scope Global -Force
+        break
+    }
+    {$_ -like '*without credential'} {
+        break
+    }
+}
+#endregion
 
 #region Initialize url to download ISHBootstrap from github
 $gitHubHost="github.com"
@@ -31,18 +115,16 @@ $gitHubUser="Sarafian"
 
 switch ($PSCmdlet.ParameterSetName)
 {
-    'Tag' {
+    {$_ -like 'Tag*'} {
         $ishBootstrapReleaseUri="https://$gitHubHost/$gitHubUser/ISHBootstrap/archive/$Tag.zip"
         $downloadFileName="InfoShare-$Tag.zip"
     }
-    'Branch' {
+    {$_ -like 'Branch*'} {
         $ishBootstrapReleaseUri="https://$gitHubHost/$gitHubUser/ISHBootstrap/archive/$Branch.zip"
         $downloadFileName="InfoShare-$Branch.zip"
     }
 }
 #endregion
-
-$jsonPath="$PSScriptRoot\ISHBootstrap.json"
 
 $ErrorActionPreference = "Stop"
 
@@ -72,26 +154,22 @@ Expand-Archive -Path $ishBootstrapTempPath -DestinationPath $ishBootstrapPath
 $ishBootstrapPath=Get-ChildItem -Path $ishBootstrapPath |Select-Object -ExpandProperty FullName -First 1
 #endregion
 
-#region Credential
-if(-not $NoCredentialPrompt)
-{
-    $credentialActivity="Acquiring credentials"
-    Write-Progress -Activity $credentialActivity -Status "Ask for FTP creential"
-    $ftpCredential=Get-Credential -Message "Credential for FTP"
-    Write-Progress -Activity $credentialActivity -Status "Ask for OSUser credential"
-    $osuserCredential=Get-Credential -Message "Credential for OSUser"
-    Set-Variable "ISHBootstrap.FTP" -Value $ftpCredential -Scope Global -Force
-    Set-Variable "ISHBootstrap.OSUser" -Value $osuserCredential -Scope Global -Force
-}
-#endregion
-
-
 $executionActivity="ISHBootstrap execution"
 #region Invoke ISHBootstrap
 
-Write-Progress -Activity $executionActivity -Status "Loading JSON"
-& "$ishBootstrapPath\Examples\Load-ISHBootstrapperContext.ps1" -JSONPath $jsonPath
-
+switch ($JSONPath)
+{
+    {$_ -like 'http*'} {
+        $json=Invoke-WebRequest -Uri $JSONPath -UseBasicParsing
+        Write-Progress -Activity $executionActivity -Status "Loading JSON from http url."
+        & "$ishBootstrapPath\Examples\Load-ISHBootstrapperContext.ps1" -JSON $json -FolderPath $PSScriptRoot
+    }
+    Default {
+        Write-Progress -Activity $executionActivity -Status "Loading JSON from file."
+        & "$ishBootstrapPath\Examples\Load-ISHBootstrapperContext.ps1" -JSONPath $JSONPath
+    }
+}
+return
 Write-Progress -Activity $executionActivity -Status "Initializing PowerShell"
 & "$ishBootstrapPath\Examples\Initialize-PowerShellGet.ps1"
 
