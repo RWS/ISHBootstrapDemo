@@ -92,8 +92,18 @@ switch ($PSCmdlet.ParameterSetName)
         $credentialActivity="Acquiring credentials"
         Write-Progress -Activity $credentialActivity -Status "Ask for FTP creential"
         $FTPCredential=Get-Credential -Message "Credential for FTP"
+        if(-not $FTPCredential)
+        {
+            Write-Warning "Cancelled"
+            return
+        }
         Write-Progress -Activity $credentialActivity -Status "Ask for OSUser credential"
         $OSUSerCredential=Get-Credential -Message "Credential for OSUser"
+        if(-not $OSUSerCredential)
+        {
+            Write-Warning "Cancelled"
+            return
+        }
         Set-Variable "ISHBootstrap.FTP" -Value $FTPCredential -Scope Global -Force
         Set-Variable "ISHBootstrap.OSUser" -Value $OSUSerCredential -Scope Global -Force
         break
