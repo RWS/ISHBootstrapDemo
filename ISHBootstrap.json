@@ -1,0 +1,38 @@
+{
+  "OSUserCredentialExpression": "Get-Variable -Name 'ISHBootstrap.OSUser' -Scope Global -ValueOnly",
+  "ISHVersion": "12.0.1",
+  "PSRepository": [
+    
+  ],
+  "FTP": {
+    "Host": "host",
+    "CredentialExpression": "Get-Variable -Name 'ISHBootstrap.FTP' -Scope Global -ValueOnly",
+    "ISHServerFolder": "Download/InfoShare120/ISHServer/",
+    "ISHCDFolder": "Download/InfoShare120/SP1/",
+    "ISHCDFileName": "20160815.CD.InfoShare.12.0.3215.1.Trisoft-DITA-OT.exe"
+  },
+  "Configuration": [
+    {
+      "XOPUS": [
+        {
+          "LisenceKey": "license",
+          "Domain": "domain"
+        }
+      ],
+      "ExternalID": "ServiceUser"
+    }
+  ],
+  "ISHDeployment": [
+    {
+      "Name": "InfoShare",
+      "IsOracle": false,
+      "LucenePort": 9010,
+      "UseRelativePaths": false,
+      "Scripts": [
+        "ISHDeploy\\Set-ISHCMComponents.ps1",
+        "ISHDeploy\\Set-ISHCMMenuAndButton.ps1"
+	  ],
+      "ConnectionString": "connectionstring"
+    }
+  ]
+}
