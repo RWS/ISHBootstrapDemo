@@ -43,7 +43,7 @@ On the target server:
 1. Change directory into the folder.
 1. Execute one of the following.
 
-```
+```powershell
 # target master branch
 powershell -File ISHBootstrap.ps1
 
@@ -56,12 +56,14 @@ powershell -File ISHBootstrap.ps1 -Tag "v0.3"
 
 ### Direct with copy paste 
 
-```
+```powershell
 # Specify source for ISHBootstrap.json
 $jsonPath=""
 
+# Download ISHBootstrap.ps1
+$scriptUrl="https://raw.githubusercontent.com/Sarafian/ISHBootstrapDemo/master/ISHBootstrap.ps1"
 $scriptPath=Join-Path $env:TEMP "ISHBootstrap.ps1"
-#Remove-Item -Path $script
+Remove-Item -Path $scriptPath -Force -ErrorAction SilentlyContinue
 Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -OutFile $scriptPath
 
 # Change the parameter do match your use case
