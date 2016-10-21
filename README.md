@@ -60,7 +60,6 @@ powershell -File ISHBootstrap.ps1 -Tag "v0.3"
 # Specify source for ISHBootstrap.json
 $jsonPath=""
 
-$scriptUrl="https://raw.githubusercontent.com/Sarafian/ISHBootstrapDemo/master/ISHBootstrap.ps1"
 $scriptPath=Join-Path $env:TEMP "ISHBootstrap.ps1"
 #Remove-Item -Path $script
 Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -OutFile $scriptPath
