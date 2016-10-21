@@ -170,7 +170,7 @@ $executionActivity="ISHBootstrap execution"
 switch ($JSONPath)
 {
     {$_ -like 'http*'} {
-        $json=Invoke-WebRequest -Uri $JSONPath -UseBasicParsing
+        $json=(Invoke-WebRequest -Uri $JSONPath -UseBasicParsing).Content
         Write-Progress -Activity $executionActivity -Status "Loading JSON from http url."
         & "$ishBootstrapPath\Examples\Load-ISHBootstrapperContext.ps1" -JSON $json -FolderPath $PSScriptRoot
     }
