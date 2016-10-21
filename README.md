@@ -31,7 +31,9 @@ This repository showcases:
 - A restart is advised at the end but depending on the operating system it might not be necessary.
   - Will not do Oracle to avoid the necessary restart.
 
-## Execute the demo
+## Execute the demo 
+
+### Step by step
 
 On the target server:
 1. In the same folder
@@ -50,6 +52,21 @@ powershell -File ISHBootstrap.ps1 -Branch develop
 
 # target v0.2 tag
 powershell -File ISHBootstrap.ps1 -Tag "v0.3"  
+```
+
+### Direct with copy paste 
+
+```
+# Specify source for ISHBootstrap.json
+$jsonPath=""
+
+$scriptUrl="https://raw.githubusercontent.com/Sarafian/ISHBootstrapDemo/master/ISHBootstrap.ps1"
+$scriptPath=Join-Path $env:TEMP "ISHBootstrap.ps1"
+#Remove-Item -Path $script
+Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -OutFile $scriptPath
+
+# Change the parameter do match your use case
+& $scriptPath -JSONPath $jsonPath -PromptCredential
 ```
 
 ## What is Copy-ToRemote.ps1?
