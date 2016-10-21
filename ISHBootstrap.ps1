@@ -203,3 +203,6 @@ Write-Progress -Activity $executionActivity -Status "Executing code as configura
 Write-Progress -Activity $downloadActivity -Completed
 
 Write-Warning "A restart is advised"
+
+Write-Information "Available urls"
+Get-ISHDeployment |Select-Object Name,@{Name="ISHCM";Expression={"https://$($_.AccessHostName)/$($_.WebAppNameCM)/"}},@{Name="ISHWS";Expression={"https://$($_.AccessHostName)/$($_.WebAppNameWS)/"}}
