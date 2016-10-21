@@ -50,7 +50,7 @@ param(
             {$_ -like 'http*'} {
                 try
                 {
-                    $request = Invoke-WebRequest -Uri $_ -MaximumRedirection 0
+                    $request = Invoke-WebRequest -Uri $_ -MaximumRedirection 0 -UseBasicParsing
                 }
                 catch
                 {
@@ -169,7 +169,7 @@ switch ($JSONPath)
         & "$ishBootstrapPath\Examples\Load-ISHBootstrapperContext.ps1" -JSONPath $JSONPath
     }
 }
-return
+
 Write-Progress -Activity $executionActivity -Status "Initializing PowerShell"
 & "$ishBootstrapPath\Examples\Initialize-PowerShellGet.ps1"
 
