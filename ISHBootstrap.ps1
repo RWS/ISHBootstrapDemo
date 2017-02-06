@@ -190,7 +190,7 @@ Write-Progress -Activity $executionActivity -Status "Installing ISH prerequisite
 & "$ishBootstrapPath\Examples\Initialize-ISHServer.ps1"
 
 Write-Progress -Activity $executionActivity -Status "Downloading and expanding ISH CD"
-& "$ishBootstrapPath\Examples\Copy-ISHCD.Released.ps1"
+& "$ishBootstrapPath\Examples\Copy-ISHCD.ps1"
 
 Write-Progress -Activity $executionActivity -Status "Installing ISH"
 & "$ishBootstrapPath\Examples\Install-ISH.ps1"
