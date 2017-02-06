@@ -50,8 +50,8 @@ powershell -File ISHBootstrap.ps1
 # target develop branch
 powershell -File ISHBootstrap.ps1 -Branch develop  
 
-# target v0.2 tag
-powershell -File ISHBootstrap.ps1 -Tag "v0.3"  
+# target v0.7 tag
+powershell -File ISHBootstrap.ps1 -Tag "v0.7"  
 ```
 
 ### Direct with copy paste 
