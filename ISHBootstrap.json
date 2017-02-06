@@ -1,6 +1,6 @@
 {
   "OSUserCredentialExpression": "Get-Variable -Name 'ISHBootstrap.OSUser' -Scope Global -ValueOnly",
-  "ISHVersion": "12.0.1",
+  "ISHVersion": "12.0.3",
   "PSRepository": [
     
   ],
@@ -8,8 +8,8 @@
     "Host": "host",
     "CredentialExpression": "Get-Variable -Name 'ISHBootstrap.FTP' -Scope Global -ValueOnly",
     "ISHServerFolder": "Download/InfoShare120/ISHServer/",
-    "ISHCDFolder": "Download/InfoShare120/SP1/",
-    "ISHCDFileName": "20160815.CD.InfoShare.12.0.3215.1.Trisoft-DITA-OT.exe"
+    "ISHCDFolder": "Download/InfoShare120/SP3/",
+    "ISHCDFileName": "20170125.CD.InfoShare.12.0.3725.3.Trisoft-DITA-OT.exe",
   },
   "Configuration": [
     {
